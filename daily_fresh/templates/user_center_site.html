@@ -1,0 +1,80 @@
+{% extends 'base_user_center.html' %}
+{% block right_content %}
+		<div class="right_content clearfix">
+				<h3 class="common_title2">收货地址</h3>
+				<div class="site_con address_btn">
+                    <dl>
+                        <dt>当前地址:</dt>
+                        {% if addr %}
+                            <dd address_id="{{ addr.id }}">
+                                <a href="javascript:;">
+                                    {{ addr.recipicent_addr }} （{{ addr.recipicent_name }} 收）{{ addr.recipicent_phone }}
+                                </a>
+                                <a href="javascript:;" class="minus fr">删除</a>
+                            </dd>
+                        {% else %}
+                            <dd>无</dd>
+                        {% endif %}
+                    </dl>
+                    <dl>
+                    {% ifnotequal addr_list|length  0 %}
+                        <dt>其它地址:</dt>
+                        {% for adr in addr_list %}
+                            <dd address_id="{{ adr.id }}">
+                                <a href="javascript:;">
+                                    {{ adr.recipicent_addr }} （{{ adr.recipicent_name }} 收）{{ adr.recipicent_phone }}
+                                </a>
+                                <a href="javascript:;" class="fr">删除</a>
+                                <a href="javascript:;" class="fr">设置默认</a>
+
+                            </dd>
+                        {% endfor %}
+                    {% endifnotequal %}
+                    </dl>
+				</div>
+				<h3 class="common_title2">编辑地址</h3>
+				<div class="site_con">
+					<form method="post" action="/user/address/">
+                        {% csrf_token %}
+						<div class="form_group">
+							<label>收件人：</label>
+							<input type="text" name="uname">
+						</div>
+						<div class="form_group form_group2">
+							<label>详细地址：</label>
+							<textarea class="site_area" name="addr"></textarea>
+						</div>
+						<div class="form_group">
+							<label>邮编：</label>
+							<input type="text" name="zip_code">
+						</div>
+						<div class="form_group">
+							<label>手机：</label>
+							<input type="text" name="phone">
+						</div>
+						<input type="submit"  value="提交" class="info_submit">
+					</form>
+				</div>
+		</div>
+{% endblock right_content %}
+{% block bottomfiles %}
+    <script>
+        $(function () {
+            $(".site_con").delegate("a", "click", function () {
+                var address_id = $(this).parent('dd').attr('address_id');
+                if ($(this).text() == "删除"){
+                    modify = "del";
+                }
+                else{
+                    modify = "set";
+                }
+                $.get('/user/'+modify+'_address/?address_id='+address_id, function (data) {
+                    if (data.res == 0){
+                        location.href = "/user/address/"
+                    }
+                })
+
+            })
+        })
+    </script>
+{% endblock bottomfiles %}

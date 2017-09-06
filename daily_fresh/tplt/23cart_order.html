@@ -1,0 +1,14 @@
+{% extends '2.html' %}
+
+{% block header %}
+    {% block header_middle %}
+        <div class="search_bar clearfix">
+            <a href="index.html" class="logo fl"><img src="images/logo.png"></a>
+            <div class="sub_page_name fl"> {% block page_name %}{% endblock %}</div>
+            <div class="search_con fr">
+                <input type="text" class="input_text fl" name="" placeholder="搜索商品">
+                <input type="button" class="input_btn fr" name="" value="搜索">
+            </div>
+        </div>
+    {% endblock %}
+{% endblock %}

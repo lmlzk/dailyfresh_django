@@ -1,0 +1,93 @@
+{% extends 'base_detail_list.html' %}
+{% load staticfiles %}
+{% block title %}天天生鲜-商品搜索结果列表{% endblock title %}
+{% block topfiles %}
+    <script src="{% static 'js/jquery-1.12.4.min.js' %}"></script>
+    <script>
+    $(function () {
+        var goods_id_list = '';
+        $('.goods_type_list').children('li').each(function () {
+            var goods_id = $(this).attr('goods_id');
+            goods_id_list += goods_id +','
+        });
+        goods_id_list = goods_id_list.substr(0, goods_id_list.length-1);
+
+        $.get('/get_image_list/?goods_id_list='+goods_id_list, function (data) {
+            var img_dict = data.img_dict;
+            $('.goods_type_list').children('li').each(function () {
+                var goods_id = $(this).attr('goods_id');
+                var img_url = img_dict[goods_id];
+                $(this).find('img').attr('src', '/static/'+img_url)
+            })
+        })
+    })
+    </script>
+{% endblock topfiles %}
+{% block main_content %}
+	<div class="breadcrumb">
+		<a href="#">{{ query }}</a>
+		<span>></span>
+		<a href="#">搜索结果</a>
+	</div>
+
+	<div class="main_wrap clearfix">
+			<ul class="goods_type_list clearfix">
+                {% for item in page %}
+				<li goods_id="{{ item.object.id }}">
+					<a href="/goods/{{ item.object.id }}/"><img src="{% static goods.img_url %}"></a>
+					<h4><a href="/goods/{{ item.object.id }}/">{{ item.object.goods_name }}</a></h4>
+					<div class="operate">
+						<span class="prize">￥{{ item.object.goods_price }}</span>
+						<span class="unit">{{ item.object.goods_price }}/{{ item.object.goods_unite }}</span>
+						<a href="javascript:;" class="add_goods" goods_id="{{ item.object.id }}" title="加入购物车"></a>
+					</div>
+				</li>
+                {% endfor %}
+            </ul>
+
+			<div class="pagenation">
+                {% if page.has_previous %}
+				    <a href="/search/?q={{ query }}&page={{ page.number|add:-1 }}">&lt;上一页</a>
+                {% else %}
+                    <a href="#">&lt;首&nbsp;&nbsp;&nbsp;&nbsp;页</a>
+                {% endif %}
+                {% for pindex in paginator.page_range %}
+                    {% if pindex == page.number %}
+				        <a href="/search/?q={{ query }}&page={{ pindex }}" class="active">{{ pindex }}</a>
+                    {% else %}
+                        <a href="/search/?q={{ query }}&page={{ pindex }}">{{ pindex }}</a>
+                    {% endif %}
+                {% endfor %}
+                {% if page.has_next %}
+				    <a href="/search/?q={{ query }}&page={{ page.number|add:1 }}">下一页&gt;</a>
+                {% else %}
+                    <a href="#">尾&nbsp;&nbsp;&nbsp;&nbsp;页&gt;</a>
+                {% endif %}
+			</div>
+	</div>
+{% endblock main_content %}
+{% block bottomfiles %}
+    <script scr="{% static 'js/jquery-1.12.4.min.js' %}"></script>
+    <script>
+        $(function () {
+            $('.add_goods').click(function () {
+                var pos = $('.login_btn').text().indexOf('注册');
+                if (pos >= 0) {
+                    location.href = '/user/login'
+                }
+                else {
+                    var goods_id = $(this).attr('goods_id');
+                    $.get('/cart/add/?goods_id='+goods_id+'&goods_count=1', function (data) {
+                        if (data.res == 1){
+                            alert('商品库存不足')
+                        }
+                        else {
+                            location.href = '/cart/'
+                        }
+                    })
+                }
+            })
+        })
+
+    </script>
+{% endblock bottomfiles %}
